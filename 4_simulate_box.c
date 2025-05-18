@@ -1,4 +1,5 @@
 #include<ncurses.h>
+#include<limits.h>
 #include<stdlib.h>
 #include<time.h>
 #include<math.h>
@@ -13,15 +14,10 @@
 #define EMPTY_SPACE_CHARACTER ' '
 #define LOOKING_SENSITIVITY 4 //degrees
 
-#define TRUE 1
-#define FALSE 0
 
 FILE *logfile;
-
-
-
-double hax = 0, hay = 0, haz = 1;
-double vax = 1, vay = 0, vaz = 0;	
+double hax = 0, hay = 0, haz = 1; // horizontal rotation axis
+double vax = 1, vay = 0, vaz = 0; // vertical rotation axis	
 
 
 void validate() {
@@ -72,6 +68,23 @@ void draw_matrix_to_window(WINDOW *win, char **matrix) {
     }
 }
 
+int min6(int a, int b, int c, int d, int e, int f) {
+    int min = a;
+    if (b < min) min = b;
+    if (c < min) min = c;
+    if (d < min) min = d;
+    if (e < min) min = e;
+    if (f < min) min = f;
+    return min;
+}
+
+double distance3d(double x1, double y1, double z1, double x2, double y2, double z2) {
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+    double dz = z2 - z1;
+    return sqrt(dx * dx + dy * dy + dz * dz);
+}
+
 // Rotate vector (vx, vy, vz) around unit axis (kx, ky, kz) by angle theta (in radians)
 void rodrigues_rotation(
     double vx, double vy, double vz,
@@ -97,105 +110,125 @@ void rodrigues_rotation(
     *rz = vz * cost + cz * sint + kz * dot * (1 - cost);
 }
 
-bool does_it_hit_y_0(double fx, double fy, double fz, double lx, double ly, double lz) {
+double does_it_hit_y_0(double fx, double fy, double fz, double lx, double ly, double lz) {
 	double k = (fy * (-1)) / ly;
 
 	double cy = 0; // plane: y = 0
 	double cx = fx + k * lx; 
 	double cz = fz + k * lz; 
 
-	fprintf(logfile, "does_it_hit_y_0: (cx,cy,cz): %lf,%lf,%lf\n", cx,cy,cz);
-	
-	return 	round(cz) >= 0 && round(cz) <= 100 && round(cx) >= 0 && round(cx) <= 100;	
+	bool hit = round(cz) >= 0 && round(cz) <= 100 && round(cx) >= 0 && round(cx) <= 100;
+	if(!hit) return INT_MAX;
+	return distance3d(fx,fy,fz, cx,cy,cz);
 }
 
 // 		fy + k*ly = 100
 //  <=> k = (100 - fy) / ly
-bool does_it_hit_y_100(double fx, double fy, double fz, double lx, double ly, double lz) {
+double does_it_hit_y_100(double fx, double fy, double fz, double lx, double ly, double lz) {
 	double k = (100.0 - fy) / ly;
 
 	double cy = 100; // plane: y = 100
 	double cx = fx + k * lx; 
 	double cz = fz + k * lz; 
 	
-	return 	round(cz) >= 0 && round(cz) <= 100 && round(cx) >= 0 && round(cx) <= 100;	
+	bool hit = round(cz) >= 0 && round(cz) <= 100 && round(cx) >= 0 && round(cx) <= 100;	
+	if(!hit) return INT_MAX;
+	return distance3d(fx,fy,fz, cx,cy,cz);
 }
 
 
-bool does_it_hit_x_0(double fx, double fy, double fz, double lx, double ly, double lz) {
+double does_it_hit_x_0(double fx, double fy, double fz, double lx, double ly, double lz) {
 	double k = (fx * (-1)) / lx;
 
 	double cx = 0; // plane: x = 0
 	double cy = fy + k * ly; 
 	double cz = fz + k * lz; 
 	
-	return 	round(cz) >= 0 && round(cz) <= 100 && round(cy) >= 0 && round(cy) <= 100;	
+	bool hit = round(cz) >= 0 && round(cz) <= 100 && round(cy) >= 0 && round(cy) <= 100;	
+	if(!hit) return INT_MAX;
+	return distance3d(fx,fy,fz, cx,cy,cz);
 }
 
-bool does_it_hit_x_100(double fx, double fy, double fz, double lx, double ly, double lz) {
+double does_it_hit_x_100(double fx, double fy, double fz, double lx, double ly, double lz) {
 	double k = (100.0 - fx) / lx;
 
 	double cx = 100; // plane: x = 100
 	double cy = fy + k * ly; 
 	double cz = fz + k * lz; 
 	
-	return 	round(cz) >= 0 && round(cz) <= 100 && round(cy) >= 0 && round(cy) <= 100;	
+	bool hit = round(cz) >= 0 && round(cz) <= 100 && round(cy) >= 0 && round(cy) <= 100;	
+	if(!hit) return INT_MAX;
+	return distance3d(fx,fy,fz, cx,cy,cz);
 }
 
 
-bool does_it_hit_z_0(double fx, double fy, double fz, double lx, double ly, double lz) {
+double does_it_hit_z_0(double fx, double fy, double fz, double lx, double ly, double lz) {
 	double k = (fz * (-1)) / lz;
 
 	double cx = fx + k * lx; 
 	double cy = fy + k * ly; 
 	double cz = 0; // plane: z = 0
 	
-	return 	round(cy) >= 0 && round(cy) <= 100 && round(cx) >= 0 && round(cx) <= 100;	
+	bool hit = round(cy) >= 0 && round(cy) <= 100 && round(cx) >= 0 && round(cx) <= 100;	
+	if(!hit) return INT_MAX;
+	return distance3d(fx,fy,fz, cx,cy,cz);
 }
 
-bool does_it_hit_z_100(double fx, double fy, double fz, double lx, double ly, double lz) {
+double does_it_hit_z_100(double fx, double fy, double fz, double lx, double ly, double lz) {
 	double k = (100.0 - fz) / lz;
 
 	double cx = fx + k * lx; 
 	double cy = fy + k * ly; 
 	double cz = 100; // plane: z = 100
 	
-	return 	round(cy) >= 0 && round(cy) <= 100 && round(cx) >= 0 && round(cx) <= 100;	
+	bool hit = round(cy) >= 0 && round(cy) <= 100 && round(cx) >= 0 && round(cx) <= 100;	
+	if(!hit) return INT_MAX;
+	return distance3d(fx,fy,fz, cx,cy,cz);
 }
 
 
-bool does_it_hit_the_box(double fx, double fy, double fz, double lx, double ly, double lz) {
-	bool hits_x_0     = does_it_hit_x_0  (fx, fy, fz, lx, ly, lz);
-	bool hits_x_100   = does_it_hit_x_100(fx, fy, fz, lx, ly, lz);
-	bool hits_y_0     = does_it_hit_y_0  (fx, fy, fz, lx, ly, lz);
-	bool hits_y_100   = does_it_hit_y_100(fx, fy, fz, lx, ly, lz);
-	bool hits_z_0     = does_it_hit_z_0  (fx, fy, fz, lx, ly, lz);
-	bool hits_z_100   = does_it_hit_z_100(fx, fy, fz, lx, ly, lz);
+double does_it_hit_the_box(double fx, double fy, double fz, double lx, double ly, double lz) {
+	double hits_x_0     = does_it_hit_x_0  (fx, fy, fz, lx, ly, lz);
+	double hits_x_100   = does_it_hit_x_100(fx, fy, fz, lx, ly, lz);
+	double hits_y_0     = does_it_hit_y_0  (fx, fy, fz, lx, ly, lz);
+	double hits_y_100   = does_it_hit_y_100(fx, fy, fz, lx, ly, lz);
+	double hits_z_0     = does_it_hit_z_0  (fx, fy, fz, lx, ly, lz);
+	double hits_z_100   = does_it_hit_z_100(fx, fy, fz, lx, ly, lz);
+	
+	return min6(hits_x_0, hits_x_100, hits_y_0, hits_y_100, hits_z_0, hits_z_100);
+}
 
-	//printf("Hits x=0: %d\n", hits_x_0);
-	//printf("Hits x=100: %d\n", hits_x_100);
-	//printf("Hits y=0: %d\n", hits_y_0);
-	//printf("Hits y=100: %d\n", hits_y_100);
-	//printf("Hits z=0: %d\n", hits_z_0);
-	//printf("Hits z=100: %d\n", hits_z_100);
-
-	bool hits = hits_x_0 || hits_x_100 || hits_y_0 || hits_y_100 || hits_z_0 || hits_z_100;
-
-	fprintf(logfile, "Did it hit: %d\n", hits);
-	return hits;
+char determine_light_level(double value) {
+    if (value >= 120.0) {
+        return '.';
+    } else if (value >= 100.0) {
+        return ':';
+    } else if (value >= 80.0) {
+        return '*';
+    } else if (value >= 60.0) {
+        return '=';
+    } else {
+        return '#';
+    }
 }
 
 void ray_cast_with_angle(char** screen, double vrangle, double hrangle, int y, int x,
 		double fx, double fy, double fz, double lx, double ly, double lz) {
 
 	double rx, ry, rz;
-	fprintf(logfile, "Casting (i,j) (%d, %d) with (va, ha) (%lf, %lf)\n", y, x, vrangle, hrangle);
     rodrigues_rotation(lx, ly, lz, vax, vay, vaz, vrangle, &rx, &ry, &rz);
     rodrigues_rotation(rx, ry, rz, hax, hay, haz, hrangle, &rx, &ry, &rz);
-	if (does_it_hit_the_box(fx, fy, fz, rx, ry, rz)) 
-		screen[y][x] = '#';
-	else
+
+    double distance_to_hit = does_it_hit_the_box(fx, fy, fz, rx, ry, rz);
+    bool hits_box = distance_to_hit != INT_MAX;
+	if (hits_box) {
+		fprintf(logfile, "Hit with distance: %lf\n", distance_to_hit);
+		char light_aware_chare = determine_light_level(distance_to_hit);
+		screen[y][x] = light_aware_chare;
+	}
+	else {
 		screen[y][x] = EMPTY_SPACE_CHARACTER;
+	}
 }
 
 
