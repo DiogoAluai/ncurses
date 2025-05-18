@@ -1,9 +1,12 @@
-Some lins:
+## Notes
+This is a practice repository for the ncurses library.
+
+#### Some links
 - https://dev.to/tbhaxor/playing-with-ncurses-cursor-part-2-1gil
 - tutorial playlist: https://www.youtube.com/watch?v=lV-OPQhPvSM&list=PL2U2TQ__OrQ8jTf0_noNKtHMuYlyxQl4v
 - Keys: https://www.gnu.org/software/guile-ncurses/manual/html_node/Getting-characters-from-the-keyboard.html
 
-Challenges:
+#### Challenges
 - [X] char rain (https://labex.io/courses/project-creating-a-code-rain-in-c-using-ncurses)
 - [ ] pong - Dont feel like porting it
 - [X] box increasing and decrising size, with inputs
