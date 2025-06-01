@@ -36,7 +36,7 @@ void main() {
 
 	printw("Move with: w a s d");
 	mvprintw(1, 0, "Resize with arrow keys");
-	refresh(); // fdp do refresh faz a differença, mesmo que nao seja dado print antes usa esta linha!
+	refresh(); // refresh faz a differença mesmo que nao seja dado print antes, usa esta linha!
 
 	int w=10, h=10, starty=10, startx=10;
 	WINDOW *win = create_newwin(h, w, starty, startx);
