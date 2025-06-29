@@ -11,4 +11,4 @@ This is a practice repository for the ncurses library.
 - [ ] pong - Dont feel like porting it
 - [X] box increasing and decrising size, with inputs
 - [X] rainbow or something
-- [ ] donut-like simulation. Let's do a box 
+- [x] donut-like simulation. Let's do a box 
