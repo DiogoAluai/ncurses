@@ -345,13 +345,12 @@ void main() {
 		getbegyx(stdscr, yMin, xMin);
 		getmaxyx(stdscr, yMax, xMax);
 
-        	clock_gettime(CLOCK_MONOTONIC, &end);
-
        		ray_cast_box(screen, xMin, xMax, yMin, yMax, fx, fy, fz, lx, ly, lz);
 
         	draw_matrix_to_window(stdscr, screen);
         
 		print_commands();
+        	clock_gettime(CLOCK_MONOTONIC, &end);
 		throttled_refresh(stdscr, start, end);
 		handle_input(&fx, &fy, &fz, &lx, &ly, &lz);
 	}
