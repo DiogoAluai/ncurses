@@ -327,8 +327,8 @@ void main() {
 	initscr();
 	logfile = fopen("debug.log", "w");
 	keypad(stdscr, TRUE);		/* I need that nifty F1 	*/
-    curs_set(FALSE);      // Hide the cursor
-    noecho();
+    	curs_set(FALSE);      // Hide the cursor
+    	noecho();
 	struct timespec start, end;
 
 	int xMin, xMax, yMin, yMax;
@@ -340,16 +340,16 @@ void main() {
 	double lx = 0, ly = 1, lz = 0;
 
 	while (1) {
-        clock_gettime(CLOCK_MONOTONIC, &start);
+        	clock_gettime(CLOCK_MONOTONIC, &start);
 
 		getbegyx(stdscr, yMin, xMin);
 		getmaxyx(stdscr, yMax, xMax);
 
-        clock_gettime(CLOCK_MONOTONIC, &end);
+        	clock_gettime(CLOCK_MONOTONIC, &end);
 
-        ray_cast_box(screen, xMin, xMax, yMin, yMax, fx, fy, fz, lx, ly, lz);
+       		ray_cast_box(screen, xMin, xMax, yMin, yMax, fx, fy, fz, lx, ly, lz);
 
-        draw_matrix_to_window(stdscr, screen);
+        	draw_matrix_to_window(stdscr, screen);
         
 		print_commands();
 		throttled_refresh(stdscr, start, end);
