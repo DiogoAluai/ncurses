@@ -1,4 +1,4 @@
-<img width="340" height="356" alt="image" src="https://github.com/user-attachments/assets/5c035aff-9d54-41e3-8ebd-5457c10c5d39" />## Notes
+## Notes
 This is a practice repository for the ncurses library.
 
 #### Some links
