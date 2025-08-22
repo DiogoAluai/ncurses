@@ -13,10 +13,12 @@ This is a practice repository for the ncurses library.
 - [x] donut-like simulation. Let's do a box 
 
 #### How to run
-Build with gcc:
+Choose one to build with gcc:
 ```bash
-gcc 1_rain.c -lncurses # link to ncurses must be at the end
-#gcc 4_simulate_box.c -lncurses -lm # build simulation with math link to
+gcc 1_rain.c -lncurses # links must be at the end
+gcc 2_resize_box.c -lncurses
+gcc 3_rainbow.c  -lncurses
+gcc 4_simulate_box.c -lncurses -lm # build simulation with math link to
 ```
 Then simply run the executable with `./a.out`.
 <div align="center">
